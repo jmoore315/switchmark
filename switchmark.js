@@ -26,7 +26,7 @@ function copyFromFolderToFolder(fromBookmarkFolderId, toBookmarkFolderId) {
 function displaySwitchmarkFolders(bookmarkNodes, parentIsSwitchmarkFolder) {
   if(parentIsSwitchmarkFolder) {
     bookmarkNodes.forEach(function(bookmark) {
-      $('#bookmark-bars').append($("<p class='bookmark-folder' id=" + bookmark.id + ">" + bookmark.title + "</p>"));
+      $('#bookmark-bars').append($("<button class='bookmark-folder' id=" + bookmark.id + ">" + bookmark.title + "</button>"));
     });
   }
   else if(bookmarkNodes) {
@@ -42,8 +42,9 @@ function displaySwitchmarkFolders(bookmarkNodes, parentIsSwitchmarkFolder) {
 }
 
 
-
 document.addEventListener('DOMContentLoaded', function () {
+  chrome.bookmarks.MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE = 100000
+  chrome.bookmarks.MAX_WRITE_OPERATIONS_PER_HOUR = 100000
   chrome.bookmarks.getTree(function(bookmarkNodes){
     displaySwitchmarkFolders(bookmarkNodes, false);
   });
