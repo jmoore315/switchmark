@@ -41,10 +41,43 @@ function displaySwitchmarkFolders(bookmarkNodes, parentIsSwitchmarkFolder) {
   }
 }
 
+function createSwitchmarkFolder() {
+  chrome.bookmarks.create({'parentId': "2", 'title': "Switchmark"}, function(newBookmark){
+    chrome.bookmarks.create({'parentId': newBookmark.id, 'title': "My Bookmarks"}, function(newSubfolder){
+      copyFromFolderToFolder("1", newSubfolder.id);
+    });
+  });
+}
+
+var folders = [];
+function addBookmarkFolders(bookmarkNodes) {
+  for(var i = 0; i< bookmarkNodes.length; i++) {
+    if(!bookmarkNodes[i].url) {
+      folders.push(bookmarkNodes[i]);
+    }
+  }
+  var switchmarkFound = false;
+  for(var j = 0; j < folders.length; j++) {
+    console.debug(folders[j]);
+    if(folders[j].title == 'Switchmark') {
+      console.debug("Found switchmark folder.");
+      switchmarkFound = true;
+      break;
+    }
+  }
+  if(!switchmarkFound){
+    createSwitchmarkFolder();
+  }
+}
+
+function findOrCreateSwitchmarkFolder() {
+  chrome.bookmarks.getChildren("2", addBookmarkFolders);
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   chrome.bookmarks.MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE = 100000
   chrome.bookmarks.MAX_WRITE_OPERATIONS_PER_HOUR = 100000
+  chrome.runtime.onStartup.addListener(findOrCreateSwitchmarkFolder);
   chrome.bookmarks.getTree(function(bookmarkNodes){
     displaySwitchmarkFolders(bookmarkNodes, false);
   });
